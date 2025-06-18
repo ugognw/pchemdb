@@ -1,0 +1,270 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pchemdb"
+dynamic = ["version"]
+description = 'A collection of physical chemistry databases.'
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Ugochukwu Nwosu", email = "ugognw@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+
+[project.optional-dependencies]
+dev = [
+  "bump2version>=1.0.1",
+  "pre-commit>=3.7.0",
+]
+test = [
+  "pytest>=7.4.3",
+  "pytest-cov>=4.1.0",
+  "pytest-datadir>=1.5.0",
+  "pytest-xdist>=3.5.0",
+]
+docs = [
+  "esbonio>=0.16.0",
+  "furo>=2024.08.06",
+  "sphinx>=7.2.6",
+  "sphinx_click>=5.0.1",
+  "sphinx-autobuild>=2024.04.16",
+  "sphinx-copybutton>=0.5.0",
+  "sphinxcontrib-apidoc>=0.5.0",
+  "sphinxext-opengraph>=0.9.1",
+]
+
+[project.urls]
+Documentation = "https://github.com/Ugochukwu Nwosu/pchemdb#readme"
+Issues = "https://github.com/Ugochukwu Nwosu/pchemdb/issues"
+Source = "https://github.com/Ugochukwu Nwosu/pchemdb"
+
+
+[tool.coverage.run]
+source_pkgs = ["pchemdb", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/pchemdb/__about__.py",
+]
+
+[tool.coverage.paths]
+pchemdb = ["src/pchemdb", "*/pchemdb/src/pchemdb"]
+tests = ["tests", "*/pchemdb/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pchemdb"]
+
+[tool.hatch.envs.default]
+features = ["dev", "test", "docs"]
+python = "3.11"
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "pytest -n auto --cov-branch --cov=src/pchemdb --cov-report=html --cov-report=lcov --cov-report=xml --cov-report=term-missing {args:tests/}"
+
+[tool.hatch.envs.docs]
+features = ["docs"]
+
+[tool.hatch.envs.docs.scripts]
+build-html = "sphinx-build -b html docs/source {args:docs/build/html/}"
+clean = "rm -rf docs/build"
+doctest = "sphinx-build -b doctest docs/source {args:docs/build/doctest/}"
+linkcheck = "sphinx-build -b linkcheck docs/source {args:docs/build/linkcheck/}"
+serve = "sphinx-autobuild --port 0 docs/source {args:docs/build/}"
+all = [
+  "doctest",
+  "linkcheck",
+  "build-html",
+]
+
+[tool.hatch.envs.test]
+features = ["test"]
+
+[[tool.hatch.envs.test.matrix]]
+python = [
+  "3.10",
+  "3.11",
+  "3.12",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.version]
+path = "src/pchemdb/__about__.py"
+
+[tool.mypy]
+exclude = [
+  "conftest.py"
+]
+plugins = "pydantic.mypy"
+
+[[tool.mypy.overrides]]
+module = "pymatgen"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = [
+  "-n",
+  "auto",
+  "--import-mode=importlib",
+  "-r A",
+  "--strict-markers",
+  "--doctest-modules",
+  "--doctest-glob=*.rst",
+  "--tb=short",
+]
+filterwarnings =[
+  "error",
+]
+markers = []
+norecursedirs = "migrations"
+python_files = [
+  "test_*.py",
+  "*_test.py",
+  "tests.py"
+]
+testpaths = ["tests"]
+
+[tool.rstcheck]
+ignore_directives = [
+    "automodule",
+    "click"
+]
+ignore_substitutions = [
+    "release",
+]
+ignore_messages = [
+    'Duplicate implicit target name: "added".',
+    'Duplicate implicit target name: "changed".',
+    'Duplicate implicit target name: "fixed".',
+    'Duplicate implicit target name: "removed".',
+    'Duplicate implicit target name: "unreleased".',
+    'Duplicate explicit target name: "keep a changelog"',
+    'No role entry for "gitref" in module "docutils.parsers.rst.languages.en',
+    'Unknown interpreted text role "gitref".',
+    # Related to https://github.com/rstcheck/rstcheck-core/issues/3
+    "An `AttributeError` error occured."
+]
+
+[tool.ruff]
+line-length = 79
+src = ["src", "tests"]
+target-version = "py311"
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 79
+
+[tool.ruff.lint]
+ignore = [
+    "D203", # pydocstyle one-blank-line-before-class
+    "D213", # pydocstyle multi-line-summary-second-line
+    "D300", # pydocstyle triple-single-quotes
+    "D406", # pydocstyle new-line-after-section-name
+    "D407", # pydocstyle dashed-underline-after-section
+    "E111", # pycodestyle indentation-with-invalid-multiple
+    "E114", # pycodestyle indentation-with-invalid-multiple-comment
+    "E117", # pycodestyle over-indented
+    "E501", # pycodestyle line-too-long
+    "PLR0913", # pylint too-many-arguments
+    "Q000", # flake8-quotes bad-quotes-inline-string
+    "Q001", # flake8-quotes bad-quotes-multiline-string
+    "Q002", # flake8-quotes bad-quotes-docstring
+    "Q003", # flake8-quotes avoidable-escaped-quote
+    "RUF001", # ruff-specific rules ambiguous-unicode-character-string
+    "S101", # flake8-bandit assert
+    "S308", # flake8-bandit suspicious-mark-safe-usage
+    "S603", # flake8-bandit subprocess-without-shell-equals-true
+    "W191", # pycodestyle tab-indentation
+]
+select = [
+    "ARG", # flake8-unused-arguments
+    "A", # flake8-builtins
+    "B", # flake8-bugbear
+    "BLE", # flake8-blind-except
+    "C4", # flake8-comprehensions
+    "C90", # mccabe complexity
+    "COM818", # flake8-commas trailing-comma-on-bare-tuple
+    "D", # pydocstyle
+    "DTZ", # flake8-datetimez
+    "E", # pycodestyle errors
+    "EM", # flake8-errmsg
+    "EXE", # flake8-executable
+    "F", # pyflakes
+    "I", # isort
+    "INT", # flake8-gettext
+    "N", # pep8-naming
+    "NPY", # NumPy-specific rules
+    "PIE", # flake8-pie
+    "PL", # pylint
+    "PT", # flake8-pytest-style
+    "PTH", # flake8-use-pathlib
+    "Q", # flake8-quotes
+    "RSE", # flake8-raise
+    "RUF", # ruff-specific rules
+    "S", # flake8-bandit
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "TID", # flake8-tidy-imports
+    "UP", # pyupgrade
+    "W", # pycodestyle warnings
+    "YTT", # flake8-2020
+]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-type-checking]
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+
+[tool.ruff.lint.isort]
+forced-separate = ["conftest"]
+force-single-line = true
+force-sort-within-sections = true
+split-on-trailing-comma = false
+known-first-party = ["pchemdb"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/{tests,docs,tools}/*" = ["E402"]  # allow module-import-not-at-top-of-file
+"__init__.py" = ["E402"]  # allow module-import-not-at-top-of-file
+"__main__.py" = ["D100"]
+# Tests can use magic values, assertions, and relative imports
+"tests/**/*" = ["D", "PLR2004", "S101", "TID252"]
+"conf.py" = [
+    "A001",
+    "ARG001",
+    "D100",
+    "PLR2004",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

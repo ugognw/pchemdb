@@ -1,0 +1,7 @@
+.vscode
+.DS_Store
+.python-version
+docs/build
+.venv
+site
+__pycache__
