@@ -22,13 +22,16 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
+dependencies = [
+  "pyEQL",
+]
 
 
 [project.optional-dependencies]
 dev = [
   "bump2version>=1.0.1",
   "pre-commit>=3.7.0",
+  "ruff"
 ]
 test = [
   "pytest>=7.4.3",
