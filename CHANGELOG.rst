@@ -15,9 +15,18 @@ Starting with version 0.12.0, this project implements a version of
 `Unreleased`_
 --------------
 
+Added
+=====
+
+* :mod:`pchemdb.crc`: utilities for parsing CRC reference data
+
+`0.0.1`_
+--------------
+
 * First version.
 
 .. _Unreleased: https://github.com/ugognw/pchemdb/
+.. _0.0.1: https://github.com/ugognw/pchemdb/
 
 .. _Keep a Changelog: https://keepachangelog.com/en/1.0.0/
 .. _Semantic Versioning: https://semver.org/spec/v2.0.0.html
