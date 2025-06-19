@@ -4,7 +4,6 @@ import logging
 import re
 from typing import Any
 
-from pyEQL import Solution
 from pyEQL import ureg
 from pyEQL.benchmark import BenchmarkEntry
 
@@ -36,8 +35,22 @@ _CONDUCTIVITY_UNITS = "S/m"
 _CONCENTRATION_UNITS = "mol/L"
 
 
-def parse_crc(d: dict[str, Any]) -> list[BenchmarkEntry]:
-    """Parse data from CRC."""
+def parse_crc(
+    d: dict[str, Any],
+) -> list[tuple[dict[str, str], dict[str, list[str]], list[str]]]:
+    """Parse data from CRC.
+
+    Args:
+        d: A dictionary corresponding to a row in a CRC .csv file.
+
+    Returns:
+        A list of 3-tuples (`solution`, `solute_data`, `solution_data`), where
+        each item represents a property entry. `solution` is a dictionary
+        mapping :class:`pyEQL.solution.Solution` constructor parameter names
+        to their values. `solute_data` is a dictionary mapping solutes formulae
+        to list of property-value pairs. `solution_data` is a list of property-
+        value pairs.
+    """
     dataset: list[BenchmarkEntry] = []
     solution = xml_tags_re.sub("", d.get("Mol. form.", d.get("Compound")))
     match = formula_re.search(solution)
@@ -91,12 +104,16 @@ def parse_crc(d: dict[str, Any]) -> list[BenchmarkEntry]:
             continue
 
         solutes = {
-            salt.cation: f"{conc.magnitude * salt.nu_cation} {conc.units}",
-            salt.anion: f"{conc.magnitude * salt.nu_anion} {conc.units}",
+            salt.cation: str(conc.magnitude * salt.nu_cation),
+            salt.anion: str(conc.magnitude * salt.nu_anion),
         }
-        soln = Solution(solutes=solutes, temperature=temp)
-        soln_data = [(prop, value)]
-        entry = BenchmarkEntry(solution=soln, solution_data=soln_data)
+        soln = {
+            "solutes": solutes,
+            "temperature": temp,
+        }
+        solute_data = {}
+        soln_data = [(prop, str(value))]
+        entry = (soln, solute_data, soln_data)
         dataset.append(entry)
 
     return dataset
