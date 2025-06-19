@@ -47,7 +47,7 @@ def fixture_sources(
 
 
 class TestParseCRC:
-    _label = "CRC"
+    _label = "crc"
 
     @staticmethod
     def test_should_parse_sources(source: Path) -> None:
