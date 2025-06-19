@@ -90,14 +90,14 @@ def _parse_concentration_dependent_conductivity(
     prop = "conductivity"
     prop_units = "mS / cm"
 
-    temp = "20 C"
+    temp = "20 degC"
     # Store concentration not as true weight percent, but as wt% of
     # solution required to be added to achieve reported wt%
     # This is required because when adding solutes based on weight
     # percent, pyEQL adds the solute in an amount equal to the weight
     # percent instead of adding the amount of solute required to for
     # the solute to attain the specified weight percent
-    conc_mag = target_conc / (1 - target_conc)
+    conc_mag = target_conc / (100 - target_conc)
     conc_units = "%"
     conc = ureg.Quantity(conc_mag, conc_units) * factor
     value = conc * ureg.Quantity(float(v), prop_units)
@@ -190,10 +190,9 @@ def parse_crc(
         else:
             continue
 
-        conc = res.conc.to(_CONCENTRATION_UNITS).magnitude
         solutes = {
-            salt.cation: str(conc * salt.nu_cation),
-            salt.anion: str(conc * salt.nu_anion),
+            salt.cation: str(res.conc * salt.nu_cation),
+            salt.anion: str(res.conc * salt.nu_anion),
         }
         soln = {
             "solutes": solutes,
