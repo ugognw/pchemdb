@@ -5,7 +5,6 @@ import re
 from typing import Any
 
 from pyEQL import ureg
-from pyEQL.benchmark import BenchmarkEntry
 
 from pchemdb.utils import formula_to_salt
 
@@ -33,6 +32,7 @@ DEFAULT_TEMPERATURE = "298.15 K"
 _CONDUCTIVITY_CONC_KEY = "<i>c</i>/M"
 _CONDUCTIVITY_UNITS = "S/m"
 _CONCENTRATION_UNITS = "mol/L"
+_TEMPERATURE_UNITS = "K"
 
 
 def parse_crc(
@@ -51,7 +51,7 @@ def parse_crc(
         to list of property-value pairs. `solution_data` is a list of property-
         value pairs.
     """
-    dataset: list[BenchmarkEntry] = []
+    dataset: list[tuple[dict[str, str], dict[str, list[str]], list[str]]] = []
     solution = xml_tags_re.sub("", d.get("Mol. form.", d.get("Compound")))
     match = formula_re.search(solution)
 
@@ -77,7 +77,9 @@ def parse_crc(
             prop = "conductivity"
             conc_mag = float(d[_CONDUCTIVITY_CONC_KEY])
             conc = ureg.Quantity(conc_mag, conc_units) * factor
-            temp = match.group("temp")
+            temp = str(
+                ureg.Quantity(match.group("temp")).to(_TEMPERATURE_UNITS)
+            )
             prop_units = "S cm ** 2 /mol"
             value = conc * ureg.Quantity(float(v), prop_units)
             value = value.to(_CONDUCTIVITY_UNITS)
