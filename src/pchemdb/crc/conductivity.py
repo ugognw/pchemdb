@@ -1,66 +1,45 @@
 """Utilities for parsin molar conductivity data from CRC."""
 
+import logging
 import re
 from typing import Any
 
 from pyEQL import Solution
+from pyEQL import ureg
 from pyEQL.benchmark import BenchmarkEntry
 
 from pchemdb.utils import formula_to_salt
-from pchemdb.utils import salt_to_solutes
+
+logger = logging.getLogger(__name__)
 
 formula_re = re.compile(r"(?P<coeff>\d+/\d+)?(?P<formula>.+)")
-ion_re1 = re.compile(r"(?P<ion>[A-Z][a-z]?)(?P<ion_sub>\d+)?")
-ion_re2 = re.compile(r"\((?P<ion>[][A-Za-z0-9]+)\)(?P<ion_sub>\d+)?")
-ion_re3 = re.compile(r"\[(?P<ion>[][A-Za-z0-9]+)\](?P<ion_sub>\d+)?")
-# TODO: check universality
+# aqueous HBr/HCl
 cond_temp_re = re.compile(
-    r"<i>\u039B</i>/S cm<sup>2</sup> mol<sup>-1</sup><br/>(?P<temp>(?:-)?\d+)"
+    "<i>\u039b</i>/"
+    r"S cm<sup>2</sup> mol<sup>-1</sup><br/>(?:(?P<sign>.)?(?P<temp>\d+.+C))"
 )
-# TODO: check universality
-cond_conc_re = re.compile(
-    r"<i>\u039B</i>/S cm<sup>2</sup> mol<sup>-1</sup><br/>(?P<conc>\d+\.\d+)"
+# aqueous hydro-halogen acids
+cond_conc_re1 = re.compile(
+    "<i>\u039b</i>/"
+    r"S cm<sup>2</sup> mol<sup>-1</sup><br/>(?P<conc>\d+\.\d+)"
 )
-activity_conc_re = re.compile(r"<i>\u03B3</i>\((?P<conc>\d+\.\d+) m\)")
-DEFAULT_TEMPERATURE = 298.15
-ION_TO_OXIDATION_STATE = {
-    "F": -1,
-    "Cl": -1,
-    "Br": -1,
-    "I": -1,
-    "NO3": -1,
-    "NO2": -1,
-    "ClO4": -1,
-    "ClO3": -1,
-    "ClO2": -1,
-    "ClO": -1,
-    "HCO3": -1,
-    "OH": -1,
-    "CO3": -2,
-    "SO4": -2,
-    "PO4": -3,
-    "H": 1,
-    "Li": 1,
-    "Na": 1,
-    "K": 1,
-    "Rb": 1,
-    "Cs": 1,
-    "Fr": 1,
-    "Be": 2,
-    "Mg": 2,
-    "Ca": 2,
-    "Sr": 2,
-    "Ba": 2,
-    "Ra": 2,
-    "NH4": 1,
-}
+# aqueous electrolytes
+cond_conc_re2 = re.compile(
+    "<i>\u039b</i>"
+    r"<sup></sup>\((?P<conc>\d+\.\d+) M\)/S cm<sup>2 </sup>mol<sup>-1</sup>"
+)
+activity_conc_re = re.compile("<i>\u03b3</i>" r"\((?P<conc>\d+\.\d+) m\)")
+xml_tags_re = re.compile(r"<(/)?[^>]+>")
+DEFAULT_TEMPERATURE = "298.15 K"
+_CONDUCTIVITY_CONC_KEY = "<i>c</i>/M"
+_CONDUCTIVITY_UNITS = "S/m"
+_CONCENTRATION_UNITS = "mol/L"
 
 
 def parse_crc(d: dict[str, Any]) -> list[dict]:
     """Parse data from CRC."""
     dataset: list[BenchmarkEntry] = []
-    solution: str = d.get("Mol. form.", d.get("Compound"))
-    solution = solution.replace("<sub>", "")
+    solution = xml_tags_re.sub("", d.get("Mol. form.", d.get("Compound")))
     match = formula_re.search(solution)
 
     if not match:
@@ -71,26 +50,52 @@ def parse_crc(d: dict[str, Any]) -> list[dict]:
     factor = int(num) / int(denom)
     formula = match.group("formula")
     salt = formula_to_salt(formula)
+    temp = DEFAULT_TEMPERATURE
+    conc_units = _CONCENTRATION_UNITS
 
     for k, v in d.items():
-        prop = "conductivity"
-        temp = DEFAULT_TEMPERATURE
+        if k is None or not v:
+            continue
 
+        # If data key in temperature-dependent dataset,
+        # read concentration from "<i>c,<\i>/M" key
+        # read temperature from cond_temp_re
         if match := cond_temp_re.search(k):
-            temp = float(match.group("temp")) + 273.15
+            prop = "conductivity"
+            conc_mag = float(d[_CONDUCTIVITY_CONC_KEY])
+            conc = ureg.Quantity(conc_mag, conc_units) * factor
+            temp = match.group("temp")
+            prop_units = "S cm ** 2 /mol"
+            value = conc * ureg.Quantity(float(v), prop_units)
+            value = value.to(_CONDUCTIVITY_UNITS)
 
-        if conc_match := cond_conc_re.search(k):
-            units = "mol/L"
+        # If data key in concentration-dependent dataset,
+        # read concentration from conc_re (activity or conductivity)
+        # use default temperature
+        elif (conc_match := cond_conc_re1.search(k)) or (
+            conc_match := cond_conc_re2.search(k)
+        ):
+            prop = "conductivity"
+            conc_mag = float(conc_match.group("conc"))
+            conc = ureg.Quantity(conc_mag, conc_units) * factor
+            prop_units = "S cm ** 2 /mol"
+            value = conc * ureg.Quantity(float(v), prop_units)
+            value = value.to(_CONDUCTIVITY_UNITS)
         elif conc_match := activity_conc_re.search(k):
-            units = "mol/kg"
             prop = "mean_activity"
+            conc_mag = float(conc_match.group("conc"))
+            conc_units = "mol/kg"
+            conc = ureg.Quantity(conc_mag, conc_units)
+            value = ureg.Quantity(float(v), prop_units)
         else:
             continue
 
-        conc = float(conc_match.group("conc")) * factor, units
-        solutes = salt_to_solutes(salt, conc)
-        soln = Solution(solutes=solutes, temperature=f"{temp} K")
-        soln_data = [(prop, float(v))]
+        solutes = {
+            salt.cation: f"{conc.magnitude * salt.nu_cation} {conc.units}",
+            salt.anion: f"{conc.magnitude * salt.nu_anion} {conc.units}",
+        }
+        soln = Solution(solutes=solutes, temperature=temp)
+        soln_data = [(prop, value)]
         entry = BenchmarkEntry(solution=soln, solution_data=soln_data)
         dataset.append(entry)
 
