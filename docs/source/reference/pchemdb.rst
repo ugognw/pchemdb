@@ -17,6 +17,14 @@ pchemdb.crc module
    :show-inheritance:
    :undoc-members:
 
+pchemdb.reference module
+------------------------
+
+.. automodule:: pchemdb.reference
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 pchemdb.utils module
 --------------------
 
