@@ -26,8 +26,7 @@ ACTIVITY_SOURCES = [
 
 @pytest.fixture(name="source", params=[])
 def fixture_source(request: pytest.FixtureRequest, datadir: Path) -> Path:
-    source: str = datadir.joinpath(request.param)
-    return source
+    return datadir.joinpath(request.param)
 
 
 @pytest.fixture(

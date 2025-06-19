@@ -121,7 +121,6 @@ path = "src/pchemdb/__about__.py"
 exclude = [
   "conftest.py"
 ]
-plugins = "pydantic.mypy"
 
 [[tool.mypy.overrides]]
 module = "pymatgen"
@@ -260,6 +259,7 @@ known-first-party = ["pchemdb"]
 "**/{tests,docs,tools}/*" = ["E402"]  # allow module-import-not-at-top-of-file
 "__init__.py" = ["E402"]  # allow module-import-not-at-top-of-file
 "__main__.py" = ["D100"]
+"__about__.py" = ["D100"]
 # Tests can use magic values, assertions, and relative imports
 "tests/**/*" = ["D", "PLR2004", "S101", "TID252"]
 "conf.py" = [

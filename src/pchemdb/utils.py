@@ -112,3 +112,6 @@ def condense(
 
     # Should: Combine data with same anion and cation into single entry
     """
+    if dataset:
+        return []
+    return []

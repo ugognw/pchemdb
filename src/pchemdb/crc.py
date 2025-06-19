@@ -145,7 +145,11 @@ def _parse_mean_activity_coefficient(
 
 def parse_crc(
     d: dict[str, Any],
-) -> list[tuple[dict[str, str], dict[str, list[str]], list[str]]]:
+) -> list[
+    tuple[
+        dict[str, Any], dict[str, list[tuple[str, str]]], list[tuple[str, str]]
+    ]
+]:
     """Parse data from CRC.
 
     Args:
@@ -159,8 +163,15 @@ def parse_crc(
         solutes formulae to list of property-value pairs. ``solution_data`` is a
         list of property-value pairs.
     """
-    dataset: list[tuple[dict[str, str], dict[str, list[str]], list[str]]] = []
-    solution = xml_tags_re.sub("", d.get("Mol. form.", d.get("Compound")))
+    dataset: list[
+        tuple[
+            dict[str, Any],
+            dict[str, list[tuple[str, str]]],
+            list[tuple[str, str]],
+        ]
+    ] = []
+    compound = str(d.get("Mol. form.", d.get("Compound")))
+    solution = xml_tags_re.sub("", compound)
     match = formula_re.search(solution)
 
     if not match:
@@ -212,7 +223,7 @@ def parse_crc(
             "solutes": solutes,
             "temperature": str(res.temp.to(_TEMPERATURE_UNITS)),
         }
-        solute_data = {}
+        solute_data: dict[str, list[tuple[str, str]]] = {}
         soln_data = [(res.prop, f"{res.value.m} {res.value.units}")]
         entry = (soln, solute_data, soln_data)
         dataset.append(entry)
