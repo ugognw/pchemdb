@@ -12,6 +12,9 @@ MOLAR_CONDUCTIVITY_SOURCES = [
     "Molar Electrical Conductivity of Aqueous Hydro-Halogen Acids at 25C as a Function of Concentration.csv",
     "Molar Electrical Conductivity of Electrolytes in Aqueous Solution at 25C as a Function of Concentration.csv",
 ]
+CONDUCTIVITY_SOURCES = [
+    "Electrical Conductivity of Aqueous Solutions at 20C as a Function of Concentration.csv"
+]
 
 
 @pytest.fixture(name="source", params=[])
@@ -73,6 +76,24 @@ class TestParseMolarElectricalConductivity(ParseCRC):
 
     @staticmethod
     @pytest.fixture(name="sources", params=[MOLAR_CONDUCTIVITY_SOURCES])
+    def fixture_sources(
+        request: pytest.FixtureRequest, datadir: Path
+    ) -> list[Path]:
+        sources = [datadir.joinpath(p) for p in request.param]
+        return sources
+
+
+class TestParseElectricalConductivity(ParseCRC):
+    _label = "conductivity"
+
+    @staticmethod
+    @pytest.fixture(name="source", params=CONDUCTIVITY_SOURCES)
+    def fixture_source(request: pytest.FixtureRequest, datadir: Path) -> Path:
+        source: Path = datadir.joinpath(request.param)
+        return source
+
+    @staticmethod
+    @pytest.fixture(name="sources", params=[CONDUCTIVITY_SOURCES])
     def fixture_sources(
         request: pytest.FixtureRequest, datadir: Path
     ) -> list[Path]:
