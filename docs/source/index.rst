@@ -1,15 +1,15 @@
-PChemDB 🐱
------------
+🧪 ``PChemDB`` 🧪
+-----------------
 
 ``PChemDB`` provides easy access to a number of physical chemistry databases.
 
-🌟 Implemented Databases 🌟
+💾 Implemented Databases 💾
 ===========================
 
 - |crc|_
 
-Coming Solution
-================
+📆 Coming Solution 📆
+=====================
 
 - |idst|_
 - |jpcrd|_

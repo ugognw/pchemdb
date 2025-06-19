@@ -1,5 +1,5 @@
-``pchemdb``
----------
+🧪 ``PChemDB`` 🧪
+----------------
 
 [![PyPI - Version](https://img.shields.io/pypi/v/pchemdb.svg)](https://pypi.org/project/pchemdb)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pchemdb.svg)](https://pypi.org/project/pchemdb)
