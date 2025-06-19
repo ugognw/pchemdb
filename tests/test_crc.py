@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from pchemdb.crc.conductivity import parse_crc
+from pchemdb.crc import parse_crc
 
 MOLAR_CONDUCTIVITY_SOURCES = [
     "Molar Electrical Conductivity of Aqueous HBr as a Function of Temperature and Concentration.csv",
@@ -14,6 +14,12 @@ MOLAR_CONDUCTIVITY_SOURCES = [
 ]
 CONDUCTIVITY_SOURCES = [
     "Electrical Conductivity of Aqueous Solutions at 20C as a Function of Concentration.csv"
+]
+ACTIVITY_SOURCES = [
+    "Activity Coefficients of Acids, Bases, and Salts at 25C as a Function of Concentration Molality 0_1 m to 1_0 m - 1.csv",
+    "Activity Coefficients of Acids, Bases, and Salts at 25C as a Function of Concentration Molality 0_1 m to 1_0 m - 2.csv",
+    "Activity Coefficients of Acids, Bases, and Salts at 25C as a Function of Concentration Molality 2_0 m to 20 m - 1.csv",
+    "Activity Coefficients of Acids, Bases, and Salts at 25C as a Function of Concentration Molality 2_0 m to 20 m - 2.csv",
 ]
 
 
@@ -94,6 +100,24 @@ class TestParseElectricalConductivity(ParseCRC):
 
     @staticmethod
     @pytest.fixture(name="sources", params=[CONDUCTIVITY_SOURCES])
+    def fixture_sources(
+        request: pytest.FixtureRequest, datadir: Path
+    ) -> list[Path]:
+        sources = [datadir.joinpath(p) for p in request.param]
+        return sources
+
+
+class TestParseMeanActvityCoefficient(ParseCRC):
+    _label = "mean_activity_coefficient"
+
+    @staticmethod
+    @pytest.fixture(name="source", params=ACTIVITY_SOURCES)
+    def fixture_source(request: pytest.FixtureRequest, datadir: Path) -> Path:
+        source: Path = datadir.joinpath(request.param)
+        return source
+
+    @staticmethod
+    @pytest.fixture(name="sources", params=[ACTIVITY_SOURCES])
     def fixture_sources(
         request: pytest.FixtureRequest, datadir: Path
     ) -> list[Path]:

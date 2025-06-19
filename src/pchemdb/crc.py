@@ -1,4 +1,15 @@
-"""Utilities for parsin molar conductivity data from CRC."""
+"""Utilities for parsing CRC data.
+
+Usage:
+
+>>> from csv import DictReader
+>>> from pchemdb.crc import parse_crc
+>>> with Path(...).open(mode="r", encoding=...) as file:
+...     reader = DictReader(file)
+...     data = []
+...     for row in reader:
+...         data.extend(parse_crc)
+"""
 
 import logging
 import re
@@ -110,11 +121,11 @@ def _parse_concentration_dependent_conductivity(
     )
 
 
-def _parse_mean_activity(
+def _parse_mean_activity_coefficient(
     factor: float, conc_mag: float, v: str
 ) -> _ParseResult:
     conc_units = "mol/kg"
-    prop = "mean_activity"
+    prop = "mean_activity_coefficient"
     prop_units = "dimensionless"
 
     temp = DEFAULT_TEMPERATURE
@@ -184,7 +195,7 @@ def parse_crc(
                 factor, float(conc_match.group("conc")), v
             )
         elif conc_match := activity_conc_re.search(k):
-            res = _parse_mean_activity(
+            res = _parse_mean_activity_coefficient(
                 factor, float(conc_match.group("conc")), v
             )
         else:
