@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from pchemdb.crc import load_crc_database
 from pchemdb.crc import parse_crc
 
 MOLAR_CONDUCTIVITY_SOURCES = [
@@ -33,9 +34,9 @@ def fixture_source(request: pytest.FixtureRequest, datadir: Path) -> Path:
     name="sources",
     params=[
         [
-            MOLAR_CONDUCTIVITY_SOURCES,
-            CONDUCTIVITY_SOURCES,
-            ACTIVITY_SOURCES,
+            *MOLAR_CONDUCTIVITY_SOURCES,
+            *CONDUCTIVITY_SOURCES,
+            *ACTIVITY_SOURCES,
         ]
     ],
 )
@@ -132,3 +133,9 @@ class TestParseMeanActvityCoefficient(TestParseCRC):
     ) -> list[Path]:
         sources = [datadir.joinpath(p) for p in request.param]
         return sources
+
+
+class TestLoadCRCData:
+    @staticmethod
+    def test_should_load_crc_data() -> None:
+        assert load_crc_database()

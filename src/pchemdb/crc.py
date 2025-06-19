@@ -11,6 +11,8 @@ Example: Parse CRC CSV into data structure
 ...         data.extend(parse_crc)
 """
 
+from importlib.resources import files
+import json
 import logging
 import re
 from typing import Any
@@ -47,6 +49,7 @@ _CONDUCTIVITY_CONC_KEY = "<i>c</i>/M"
 _CONDUCTIVITY_UNITS = "S/m"
 _CONCENTRATION_UNITS = "mol/L"
 _TEMPERATURE_UNITS = "K"
+DB_FILE = "crc.json"
 
 
 class _ParseResult(NamedTuple):
@@ -215,3 +218,13 @@ def parse_crc(
         dataset.append(entry)
 
     return dataset
+
+
+def load_crc_database() -> list[
+    tuple[dict[str, str], dict[str, list[str]], list[str]]
+]:
+    """Load the CRC database."""
+    json_db_file = files("pchemdb").joinpath("_database", DB_FILE)
+
+    with json_db_file.open(mode="r", encoding="utf-8") as file:
+        return json.load(file)
