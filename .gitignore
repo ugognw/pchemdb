@@ -6,3 +6,8 @@ docs/build
 site
 __pycache__
 dist
+
+# Coverage
+.coverage
+coverage.lcov
+coverage.xml
