@@ -21,4 +21,11 @@ jobs:
             uses: pypa/hatch@257e27e51a6a5616ed08a39a408a21c35c9931bc
           - name: Run tests
             run: |
-              hatch run pytest
+              hatch run test-cov
+          - uses: codecov/codecov-action@v5
+            with:
+              fail_ci_if_error: true
+              flags: unittests # optional
+              name: codecov-umbrella # optional
+              token: ${{ secrets.CODECOV_TOKEN }}
+              verbose: true
