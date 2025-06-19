@@ -67,9 +67,9 @@ class TestFormulaToSalt:
         assert anion[1] == salt.z_anion
 
     @staticmethod
-    @pytest.mark.xfail
+    # @pytest.mark.xfail
     @pytest.mark.parametrize(
-        ("formula", "cation", "anion"), [("NH4Cl", ("NH4", 1), ("Cl", 1))]
+        ("formula", "cation", "anion"), [("NH4Cl", ("NH4", 1), ("Cl", -1))]
     )
     def test_should_create_salts_with_polyatomic_cations(
         cation: tuple[str, int], anion: tuple[str, int], salt: Salt
