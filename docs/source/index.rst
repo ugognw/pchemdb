@@ -6,13 +6,13 @@ PChemDB 🐱
 🌟 Implemented Databases 🌟
 ===========================
 
-- |crc|
+- |crc|_
 
 Coming Solution
 ================
 
-- |idst|
-- |jpcrd|
+- |idst|_
+- |jpcrd|_
 
 .. toctree::
    :maxdepth: 2
