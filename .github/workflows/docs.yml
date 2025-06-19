@@ -22,9 +22,4 @@ jobs:
             uses: pypa/hatch@257e27e51a6a5616ed08a39a408a21c35c9931bc
           - name: Build documentation
             run: |
-              hatch run mkdocs build
-          - name: Upload static webpage files as artifact
-            id: deployment
-            uses: actions/upload-pages-artifact@v3
-            with:
-                path: docs/site
+              hatch run docs:all
