@@ -36,7 +36,7 @@ _CONDUCTIVITY_UNITS = "S/m"
 _CONCENTRATION_UNITS = "mol/L"
 
 
-def parse_crc(d: dict[str, Any]) -> list[dict]:
+def parse_crc(d: dict[str, Any]) -> list[BenchmarkEntry]:
     """Parse data from CRC."""
     dataset: list[BenchmarkEntry] = []
     solution = xml_tags_re.sub("", d.get("Mol. form.", d.get("Compound")))
