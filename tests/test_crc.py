@@ -29,7 +29,16 @@ def fixture_source(request: pytest.FixtureRequest, datadir: Path) -> Path:
     return source
 
 
-@pytest.fixture(name="sources", params=[])
+@pytest.fixture(
+    name="sources",
+    params=[
+        [
+            MOLAR_CONDUCTIVITY_SOURCES,
+            CONDUCTIVITY_SOURCES,
+            ACTIVITY_SOURCES,
+        ]
+    ],
+)
 def fixture_sources(
     request: pytest.FixtureRequest, datadir: Path
 ) -> list[Path]:
@@ -37,7 +46,7 @@ def fixture_sources(
     return sources
 
 
-class ParseCRC:
+class TestParseCRC:
     _label = "CRC"
 
     @staticmethod
@@ -71,7 +80,7 @@ class ParseCRC:
             json.dump(dataset, file, indent=4)
 
 
-class TestParseMolarElectricalConductivity(ParseCRC):
+class TestParseMolarElectricalConductivity(TestParseCRC):
     _label = "molar_conductivity"
 
     @staticmethod
@@ -89,7 +98,7 @@ class TestParseMolarElectricalConductivity(ParseCRC):
         return sources
 
 
-class TestParseElectricalConductivity(ParseCRC):
+class TestParseElectricalConductivity(TestParseCRC):
     _label = "conductivity"
 
     @staticmethod
@@ -107,7 +116,7 @@ class TestParseElectricalConductivity(ParseCRC):
         return sources
 
 
-class TestParseMeanActvityCoefficient(ParseCRC):
+class TestParseMeanActvityCoefficient(TestParseCRC):
     _label = "mean_activity_coefficient"
 
     @staticmethod
