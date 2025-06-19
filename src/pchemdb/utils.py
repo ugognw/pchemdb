@@ -99,3 +99,16 @@ def formula_to_salt(formula: str) -> Salt:
         cation=f"{cation}{cation_ox_state:+}",
         anion=f"{anion}{anion_ox_state:+}",
     )
+
+
+# TODO: Condense
+def condense(
+    dataset: list[tuple[dict[str, str], dict[str, list[str]], list[str]]],
+) -> list[tuple[dict[str, str], dict[str, list[str]], list[str]]]:
+    """Condense a solution dataset.
+
+    Args:
+        dataset: A list of Solution, SoluteData, SolutionData 3-tuples.
+
+    # Should: Combine data with same anion and cation into single entry
+    """
