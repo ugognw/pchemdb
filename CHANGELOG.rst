@@ -20,6 +20,8 @@ Added
 
 * :mod:`pchemdb.crc`: utilities for parsing CRC reference data
 
+* CRC database
+
 * Testing against CRC data downloaded 2025-06-18
 
 `0.0.1`_
