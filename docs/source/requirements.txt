@@ -1,0 +1,7 @@
+sphinx==8.0.2
+furo==2024.08.06
+sphinx_click==6.0.0
+sphinxcontrib-apidoc @ git+https://github.com/sphinx-contrib/apidoc@8be157f
+sphinx-copybutton==0.5.2
+sphinxext-opengraph==0.9.1
+typing_extensions==4.12.0
