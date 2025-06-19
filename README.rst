@@ -10,6 +10,10 @@
 Usage
 =====
 
+.. code:: Python
+    from pchemdb.crc import load_crc_database
+
+    crc_db = load_crc_database()
 
 Installation
 ============
