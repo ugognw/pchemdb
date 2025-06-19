@@ -3,21 +3,10 @@
 import re
 
 from pyEQL.salt_ion_match import Salt
-from pyEQL.utils import FormulaDict
 
-formula_re = re.compile(r"(?P<coeff>\d+/\d+)?(?P<formula>.+)")
-ion_re1 = re.compile(r"(?P<ion>[A-Z][a-z]?)(?P<ion_sub>\d+)?")
+ion_re1 = re.compile(r"(?P<ion>((NH4)|([A-Z][a-z]?)))(?P<ion_sub>\d+)?")
 ion_re2 = re.compile(r"\((?P<ion>[][A-Za-z0-9]+)\)(?P<ion_sub>\d+)?")
 ion_re3 = re.compile(r"\[(?P<ion>[][A-Za-z0-9]+)\](?P<ion_sub>\d+)?")
-# TODO: check universality
-cond_temp_re = re.compile(
-    r"<i>\u039B</i>/S cm<sup>2</sup> mol<sup>-1</sup><br/>(?P<temp>(?:-)?\d+)"
-)
-# TODO: check universality
-cond_conc_re = re.compile(
-    r"<i>\u039B</i>/S cm<sup>2</sup> mol<sup>-1</sup><br/>(?P<conc>\d+\.\d+)"
-)
-activity_conc_re = re.compile(r"<i>\u03B3</i>\((?P<conc>\d+\.\d+) m\)")
 DEFAULT_TEMPERATURE = 298.15
 ION_TO_OXIDATION_STATE = {
     "F": -1,
@@ -48,6 +37,7 @@ ION_TO_OXIDATION_STATE = {
     "Sr": 2,
     "Ba": 2,
     "Ra": 2,
+    "NH4": 1,
 }
 
 
@@ -59,12 +49,15 @@ def formula_to_salt(formula: str) -> Salt:
             Na2SO4, etc.).
 
     Warning:
-        This function does not work for formulas with polyatomic cations.
+        This function does not work for formulas with polyatomic cations other
+        than NH4+.
     """
 
-    def _parse_ion(ion: str, res: list[re.Pattern]) -> re.Match[str] | None:
+    def _parse_ion(
+        ion: str, regexes: list[re.Pattern]
+    ) -> re.Match[str] | None:
         match = None
-        for ion_re in res:
+        for ion_re in regexes:
             match = ion_re.match(ion) or match
 
         return match
@@ -89,35 +82,20 @@ def formula_to_salt(formula: str) -> Salt:
     else:
         anion_sub = 1
 
-    cation_ox_state = ION_TO_OXIDATION_STATE.get(cation, 0)
+    cation_ox_state = ION_TO_OXIDATION_STATE.get(cation)
 
-    if cation_ox_state != 0:
+    if cation_ox_state is None:
+        anion_ox_state = ION_TO_OXIDATION_STATE.get(anion)
+    else:
         anion_ox_state = -int(cation_ox_state * cation_sub / anion_sub)
-    else:
-        anion_ox_state = ION_TO_OXIDATION_STATE.get(anion, 0)
 
-    if anion_ox_state != 0:
-        cation_ox_state = -int(anion_ox_state * anion_sub / cation_sub)
-    else:
+    if anion_ox_state is None:
         msg = f"Unable to determine oxidation states for formulat: {formula}"
         raise ValueError(msg)
+
+    cation_ox_state = -int(anion_ox_state * anion_sub / cation_sub)
 
     return Salt(
         cation=f"{cation}{cation_ox_state:+}",
         anion=f"{anion}{anion_ox_state:+}",
     )
-
-
-def salt_to_solutes(salt: Salt, conc: tuple[float, str]) -> FormulaDict:
-    """Create a dictionary mapping solute ions to concentration quantities as required by the Solution constructor.
-
-    Args:
-        salt: A Salt object
-        conc: A tuple (magnitude, unit) representing the concentration of the salt to be used when creating the solute.
-    """
-    mag, unit = conc
-    solutes = {
-        salt.cation: f"{mag * salt.nu_cation} {unit}",
-        salt.anion: f"{mag * salt.nu_anion} {unit}",
-    }
-    return FormulaDict(**solutes)
