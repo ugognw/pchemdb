@@ -191,15 +191,15 @@ def parse_crc(
             continue
 
         solutes = {
-            salt.cation: str(res.conc * salt.nu_cation),
-            salt.anion: str(res.conc * salt.nu_anion),
+            salt.cation: f"{res.conc.m * salt.nu_cation} {res.conc.units}",
+            salt.anion: f"{res.conc.m * salt.nu_anion} {res.conc.units}",
         }
         soln = {
             "solutes": solutes,
             "temperature": str(res.temp.to(_TEMPERATURE_UNITS)),
         }
         solute_data = {}
-        soln_data = [(res.prop, str(res.value))]
+        soln_data = [(res.prop, f"{res.value.m} {res.value.units}")]
         entry = (soln, solute_data, soln_data)
         dataset.append(entry)
 
