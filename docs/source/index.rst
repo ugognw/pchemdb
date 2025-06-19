@@ -1,7 +1,7 @@
 PChemDB 🐱
 -----------
 
-`PChemDB` provides easy access to a number of physical chemistry databases.
+``PChemDB`` provides easy access to a number of physical chemistry databases.
 
 🌟 Implemented Databases 🌟
 ===========================
