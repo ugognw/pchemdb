@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "pchemdb"
 dynamic = ["version"]
 description = 'A collection of physical chemistry databases.'
-readme = "README.md"
+readme = "README.rst"
 requires-python = ">=3.10"
 license = "MIT"
 keywords = []
