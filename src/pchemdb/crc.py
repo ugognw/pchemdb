@@ -1,6 +1,6 @@
 """Utilities for parsing CRC data.
 
-Usage:
+Example: Parse CRC CSV into data structure
 
 >>> from csv import DictReader
 >>> from pchemdb.crc import parse_crc
@@ -149,12 +149,12 @@ def parse_crc(
         d: A dictionary corresponding to a row in a CRC .csv file.
 
     Returns:
-        A list of 3-tuples (`solution`, `solute_data`, `solution_data`), where
-        each item represents a property entry. `solution` is a dictionary
-        mapping :class:`pyEQL.solution.Solution` constructor parameter names
-        to their values. `solute_data` is a dictionary mapping solutes formulae
-        to list of property-value pairs. `solution_data` is a list of property-
-        value pairs.
+        A list of 3-tuples (``solution``, ``solute_data``, ``solution_data``),
+        where each item represents a property entry. ``solution`` is a
+        dictionary mapping :class:`pyEQL.solution.Solution` constructor
+        parameter names to their values. ``solute_data`` is a dictionary mapping
+        solutes formulae to list of property-value pairs. ``solution_data`` is a
+        list of property-value pairs.
     """
     dataset: list[tuple[dict[str, str], dict[str, list[str]], list[str]]] = []
     solution = xml_tags_re.sub("", d.get("Mol. form.", d.get("Compound")))
